@@ -1,0 +1,198 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <title>NLP Classified</title>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  rel="stylesheet"
+  />
+  <!-- Google Fonts -->
+  <link
+  href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+  rel="stylesheet"
+  />
+  <!-- MDB -->
+  <link
+  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.4.0/mdb.min.css"
+  rel="stylesheet"
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="/lib/w3.css">
+
+  <style>
+    body {
+      background-color: #FFF0F5;
+    }
+
+    input[type=text] {
+      background-color: white;
+      background-position: 10px 10px;
+      background-repeat: no-repeat;
+      padding-left: 40px;
+    }
+
+    th,
+    td {
+      padding: 20px;
+      text-align: left;
+      height: 50px;
+      border-bottom: 1px solid #ddd;
+      border-radius: 4px;
+
+    }
+
+    .center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    p {
+      color: #FFE4B5;
+    }
+
+    label {
+      background-color: #6A5ACD;
+      color: white;
+      padding: 0.4rem;
+      font-family: sans-serif;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    .button {
+      background-color: #6A5ACD;
+      border: none;
+      color: white;
+      padding: 6px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+
+    .button1 {
+      border-radius: 8px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <h1 style="text-align:center">NLP Classified</h1>
+
+  <br>
+
+  <center>
+    <p><strong>
+        <font size="7">{{msg}}</font>
+      </strong></p>
+  </center>
+  <form action="/upload_file" style="text-align:center" action='/' , method='post' enctype="multipart/form-data">
+    <label>
+      <input class="form-control" type="file" name="Docfile" multiple>
+
+    </label>
+    <br>
+    <label for="">Find Word in Document : 
+    <input class="form-control" type="text" name="Word" multiple>
+    <input class="button button1" type="submit" value="Enter">
+  </label>
+
+  </form>
+  <br>
+  <br>
+  <hr>
+  {% if bool_check == True %}
+  <center>
+    <h3>WORD : <strong>{{key_word}}</strong>
+      <font color="green"> File has been found in your document</font>
+    </h3>
+    <hr>
+    {% elif bool_check == False %}
+    <center>
+      <h3>WORD : <strong>{{key_word}}</strong>
+        <font color="red"> File has been not found in your document</font>
+      </h3>
+      <hr>
+      {% endif %}
+      <br>
+      <br>
+      <table style=" width: 100  " class="center">
+        <tr>
+          <th>
+            <center><strong>BOW</strong>
+          </th>
+          <th>
+            <center><strong>TF_IDF</strong>
+          </th>
+        </tr>
+        <tr>
+          <td>
+            <center>{% for i in Show %}
+              <li> {{i}} </li>
+              {% endfor %}
+          </td>
+          <td>
+            <center>{% for i in top_tfidf %}
+              <li> {{i}} </li>
+              {% endfor %}
+          </td>
+        </tr>
+      </table>
+      <hr>
+      <br>
+
+      <center><strong>Name Entity</strong>
+        <br>
+        <br>
+        <center>{{show_spa}}
+
+
+          <form action="/fakenews_print" style="text-align:center" action='/' , method='post' enctype="multipart/form-data">
+            <label for="">Fake News : 
+              <input class="form-control" type="text" name="word1" multiple>
+              <h3>{{msg1}}</h3>
+              <input class="form-control" type="submit" value="Enter">
+            </label>
+          </form>
+
+        <br>
+        <br>
+
+        <div id="Sentiment" class="w3-container city">
+          <form action="/sentiment", method="post">
+              <div>
+                  <div >
+                      <form action="/sentiment", method="post" enctype="multipart/form-data">
+                          <div class="rowA12"><h1>Input Sentiment</h1></div>
+                          <div class="rowA10">
+                              
+                            <input class="form-control" type="text" id="sinput" name="Sentiment" placeholder="Sentiment" required="required" />
+                          </div>
+                          <div class="rowA11">
+                            <button class="button button1" type="submit" ><i class="fas fa-search"> Search</i></button>
+                          </div>
+                          <div class="rowA12">
+                              <h2>{{varible}}</h2>
+                      </div>
+                  </form>
+                  </div>
+              </div>
+          </form>       
+        </div>
+
+
+
+
+</body>
+
+</html>

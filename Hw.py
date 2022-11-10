@@ -1,20 +1,41 @@
-from flask import Flask , render_template , request , Markup
+import glob
+import itertools
 import os
-from nltk.tokenize import word_tokenize 
-from collections import Counter
+from collections import Counter, defaultdict
+from fileinput import filename
+import shutil
+from markupsafe import Markup
+import nltk
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+nltk.download('stopwords')
+nltk.download('vader_lexicon')
+from flask import Flask, flash, redirect, render_template, request
+from gensim.corpora.dictionary import Dictionary
+from gensim.models.tfidfmodel import TfidfModel
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from gensim.models.tfidfmodel import TfidfModel
-from gensim.corpora.dictionary import Dictionary
-from collections import defaultdict
-import shutil,itertools
+from nltk.tokenize import word_tokenize
+from werkzeug.utils import secure_filename
+import spacy
+nlp = spacy.load('en_core_web_sm')
+from transformers import AutoTokenizer , AutoModelForSequenceClassification
+import pandas as pd
+import tokenizer
 import spacy
 from spacy import displacy
+from textblob import TextBlob
+doc = nlp(u'This is a sentence.')
+model_path = "fake-news-jtrp"
 
+model = AutoModelForSequenceClassification.from_pretrained(model_path)
+
+tokenizer =AutoTokenizer.from_pretrained(model_path)
 
 app= Flask(__name__)
-
-app.config["UPLOAD_PATH"] = "C:/Users/jatur/OneDrive/เดสก์ท็อป/6206021611095/Doc"
+#เปลี่ยน path file ตามที่เราเอาโฟลเดอร์ Doc ไปลง
+app.config["UPLOAD_PATH"] = r"C:\Users\MR.TANATORN\Desktop\Python-Flask-NLP-main\Doc"
 i=1
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -29,8 +50,8 @@ def upload_file():
         articles = []
         i=1
         #การเช็ค direct ว่ามี folder หรือ file มั้ย ถ้ามีอยู่แล้ว มันจะลบตัวเดิมออกละใส่ตัวใหม่เข้าไป
-        for filename in os.listdir('C:/Users/jatur/OneDrive/เดสก์ท็อป/6206021611095/Doc'):
-                file_path = os.path.join('C:/Users/jatur/OneDrive/เดสก์ท็อป/6206021611095/Doc', filename)
+        for filename in os.listdir(r'C:\Users\MR.TANATORN\Desktop\Python-Flask-NLP-main\Doc'):
+                file_path = os.path.join(r'C:\Users\MR.TANATORN\Desktop\Python-Flask-NLP-main\Doc', filename)
         
                 try:
                     if os.path.isfile(file_path) or os.path.islink(file_path):
@@ -48,7 +69,7 @@ def upload_file():
         
         i=0
         
-        Path_direc = 'C:/Users/jatur/OneDrive/เดสก์ท็อป/6206021611095/Doc'
+        Path_direc = r'C:\Users\MR.TANATORN\Desktop\Python-Flask-NLP-main\Doc'
         BOW=[]
         Spa=""
         # เรียกอ่านไฟล์และทำ Back of Word 
@@ -113,6 +134,46 @@ def upload_file():
         
         
     return render_template("index.html",msg="Please choose file") 
+    
+@app.route('/fakenews_print', methods = ['GET', 'POST'])
+def fakenews_print():
+    if request.method == 'POST':
+        def get_prediction(text, convert_to_label=False):
+            inputs = tokenizer(text, padding=True, truncation=True, max_length=512,return_tensors="pt")
+            # perform inference to our model
+            outputs = model(**inputs)
+            # get output probabilities by doing softmax
+            probs = outputs[0].softmax(1)
+            # executing argmax function to get the candidate label
+            d = {0: "reliable",1: "fake"}
+            if convert_to_label:
+                return d[int(probs.argmax())]
+            else:
+                return int(probs.argmax())
+        word1 = request.form['word1']
+        
+        msg1 = str(get_prediction(word1, convert_to_label=True ))
+
+        
+    return render_template('index.html',msg1 = msg1)
+
+@app.route('/sentiment', methods = ['GET', 'POST'])
+def sentiment():
+    text = request.form['Sentiment']
+    import nltk
+    nltk.download('vader_lexicon') 
+    from nltk.sentiment.vader import SentimentIntensityAnalyzer
+    sid = SentimentIntensityAnalyzer()
+    score = ((sid.polarity_scores(str(text))))['compound']
+
+    if(score > 0):
+        label = 'This sentence is positive'
+    elif(score == 0):
+        label = 'This sentence is neutral'
+    else:
+        label = 'This sentence is negative'
+
+    return render_template('index.html',varible = label)
 
 
 
